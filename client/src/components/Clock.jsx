@@ -27,7 +27,7 @@ class Clock extends React.Component {
         var date = new Date();
         var daytime = 'AM';
         var hour = date.getHours();
-        if (hour >= 12) {
+        if (hour >= 12 && hour <= 23) {
             daytime = 'PM'
             if (hour > 12) {
                 hour -= 12;
@@ -45,6 +45,7 @@ class Clock extends React.Component {
         this.setState({
             time
         });
+        this.props.updateTime(time);
         setTimeout(this.fetchTime, 1000);
     }
 
