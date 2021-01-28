@@ -9,47 +9,24 @@ const Main = styled.div`
 `;
 
 class Clock extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
-            time: ''
+            time: this.props.currentTime
         }
-
-        this.fetchTime = this.fetchTime.bind(this);
     }
 
-    componentWillMount() {
-        this.fetchTime();
-    }
-
-    fetchTime() {
-        var date = new Date();
-        var daytime = 'AM';
-        var hour = date.getHours();
-        if (hour >= 12 && hour <= 23) {
-            daytime = 'PM'
-            if (hour > 12) {
-                hour -= 12;
-            }
-        }
-        var minute = date.getMinutes();
-        if (minute < 10) {
-            minute = `0${minute}`;
-        }
-        var second = date.getSeconds();
-        if (second < 10) {
-            second = `0${second}`;
-        }
-        var time = `${hour}:${minute}:${second} ${daytime}`;
+    componentWillReceiveProps(newProps) {
         this.setState({
-            time
+            time: newProps.currentTime
         });
-        this.props.updateTime(time);
-        setTimeout(this.fetchTime, 1000);
     }
 
     render() {
+        if (this.state.time === '') {
+            return null;
+        }
         return (
             <Main>{this.state.time}</Main>
         )

@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 class Alarm extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
             alarms: [],
@@ -16,6 +16,12 @@ class Alarm extends React.Component {
         this.minuteChange = this.minuteChange.bind(this);
         this.daytimeChange = this.daytimeChange.bind(this);
         this.saveAlarm = this.saveAlarm.bind(this);
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.setState({
+            currentTime: newProps.currentTime
+        });
     }
 
     hourChange(e) {
