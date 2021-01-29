@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -9,13 +10,34 @@ class Alarm extends React.Component {
             alarms: [],
             hour: '',
             minute: '',
-            daytime: ''
+            daytime: '',
+            label: ''
         }
 
+        this.fetchAlarms = this.fetchAlarms.bind(this);
         this.hourChange = this.hourChange.bind(this);
         this.minuteChange = this.minuteChange.bind(this);
         this.daytimeChange = this.daytimeChange.bind(this);
+        this.labelChange = this.labelChange.bind(this);
         this.saveAlarm = this.saveAlarm.bind(this);
+    }
+
+    componentWillMount() {
+        this.fetchAlarms();
+    }
+
+    fetchAlarms() {
+        axios.get('/api/alarms')
+            .then(res => {
+                var alarms = res.data;
+                for (let i = 0; i < alarms.length; i++) {
+                    alarms[i] = JSON.stringify(alarms[i]);
+                }
+                this.setState({ alarms });
+            })
+            .catch(err => {
+                console.log(err.stack);
+            });
     }
 
     componentWillReceiveProps(newProps) {
@@ -39,18 +61,27 @@ class Alarm extends React.Component {
         this.setState({ daytime });
     }
 
+    labelChange(e) {
+        var label = e.target.value;
+        this.setState({ label });
+    }
+
     saveAlarm() {
         if (this.state.hour === '' || this.state.minute === '' || this.state.daytime === '') {
             return null;
         }
-        var alarm = `${this.state.hour}:${this.state.minute} ${this.state.daytime}`;
+        var alarm = {
+            time: `${this.state.hour}:${this.state.minute} ${this.state.daytime}`,
+            label: this.state.label
+        };
         var newAlarmsList = this.state.alarms;
-        newAlarmsList.push(alarm);
+        newAlarmsList.push(JSON.stringify(alarm));
         var newState = {
             alarms: newAlarmsList,
             hour: '',
             minute: '',
-            daytime: ''
+            daytime: '',
+            label: ''
         }
         this.setState(newState);
     }
@@ -76,7 +107,10 @@ class Alarm extends React.Component {
             return <option value={daytime}>{daytime}</option>
         });
         var alarms = this.state.alarms.map(alarm => {
-            return <div>{alarm}</div>
+            alarm = JSON.parse(alarm);
+            var time = alarm.time;
+            var label = alarm.label;
+            return label === '' ? <div>{time}</div> : <div>{time}: {label}</div>
         });
         return (
             <>
@@ -102,6 +136,9 @@ class Alarm extends React.Component {
                             <option value="" selected disabled hidden>{this.state.daytime}</option>
                             {daytimeOptions}
                         </select>
+                    </label>
+                    <label>
+                        <input placeholder="What is this alarm for?" value={this.state.label} onChange={this.labelChange}></input>
                     </label>
                     <button onClick={this.saveAlarm}>Save</button>
                 </form>
