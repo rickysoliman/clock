@@ -33,7 +33,13 @@ class Alarm extends React.Component {
                 for (let i = 0; i < alarms.length; i++) {
                     alarms[i] = JSON.stringify(alarms[i]);
                 }
-                this.setState({ alarms });
+                this.setState({ 
+                    alarms,
+                    hour: '',
+                    minute: '',
+                    daytime: '',
+                    label: ''
+                });
             })
             .catch(err => {
                 console.log(err.stack);
@@ -74,16 +80,15 @@ class Alarm extends React.Component {
             time: `${this.state.hour}:${this.state.minute} ${this.state.daytime}`,
             label: this.state.label
         };
-        var newAlarmsList = this.state.alarms;
-        newAlarmsList.push(JSON.stringify(alarm));
-        var newState = {
-            alarms: newAlarmsList,
-            hour: '',
-            minute: '',
-            daytime: '',
-            label: ''
-        }
-        this.setState(newState);
+
+        axios.post('/api/alarms', alarm)
+            .then(res => {
+                console.log('success');
+                this.fetchAlarms();
+            })
+            .catch(err => {
+                console.log(err.stack);
+            });
     }
 
     render() {
