@@ -2,6 +2,15 @@ import axios from 'axios';
 import React from 'react';
 import styled from 'styled-components';
 
+const Alarms = styled.div`
+    font-family: Arial;
+    width: fit-content;
+    &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+`;
+
 class Alarm extends React.Component {
     constructor(props) {
         super(props);
@@ -14,22 +23,33 @@ class Alarm extends React.Component {
             label: ''
         }
 
+        this.sortByTime = this.sortByTime.bind(this);
         this.fetchAlarms = this.fetchAlarms.bind(this);
         this.hourChange = this.hourChange.bind(this);
         this.minuteChange = this.minuteChange.bind(this);
         this.daytimeChange = this.daytimeChange.bind(this);
         this.labelChange = this.labelChange.bind(this);
         this.saveAlarm = this.saveAlarm.bind(this);
+        this.checkForAlerts = this.checkForAlerts.bind(this);
     }
 
     componentWillMount() {
         this.fetchAlarms();
+        this.checkForAlerts();
+    }
+
+    sortByTime(array) {
+        array.sort((a, b) => {
+            return Date.parse('06/21/1992 ' + a.time) - Date.parse('06/21/1992 ' + b.time);
+        });
+        return array;
     }
 
     fetchAlarms() {
         axios.get('/api/alarms')
             .then(res => {
                 var alarms = res.data;
+                alarms = this.sortByTime(alarms);
                 for (let i = 0; i < alarms.length; i++) {
                     alarms[i] = JSON.stringify(alarms[i]);
                 }
@@ -91,6 +111,23 @@ class Alarm extends React.Component {
             });
     }
 
+    checkForAlerts() {
+        var currentTime = this.props.currentTime.split(':');
+        var hour = currentTime[0];
+        var minute = currentTime[1];
+        var second = currentTime[2].split(' ')[0];
+        var daytime = currentTime[2].split(' ')[1];
+        currentTime = `${hour}:${minute} ${daytime}`;
+        for (let i = 0; i < this.state.alarms.length; i++) {
+            var current = JSON.parse(this.state.alarms[i]);
+            if (current.time === currentTime && second === '00') {
+                window.alert(`It's time to ${current.label}!`);
+                break;
+            }
+        }
+        setTimeout(this.checkForAlerts, 1000);
+    }
+
     render() {
         var hours = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         var hourOptions = hours.map(hour => {
@@ -115,7 +152,7 @@ class Alarm extends React.Component {
             alarm = JSON.parse(alarm);
             var time = alarm.time;
             var label = alarm.label;
-            return label === '' ? <div>{time}</div> : <div>{time}: {label}</div>
+            return label === '' ? <Alarms>{time}</Alarms> : <Alarms>{time}: {label}</Alarms>
         });
         return (
             <>
