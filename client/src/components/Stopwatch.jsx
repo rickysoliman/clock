@@ -14,13 +14,25 @@ const Time = styled.div`
 `;
 
 const Button = styled.button`
-    background-color: red;
+    background-color: ${props => props.on ? 'red' : 'green'};
     border: none;
     border-radius: 10px;
     width: fit-content;
     height: fit-content;
     font-size: 0.5em;
     color: white;
+    &:hover {
+        cursor: pointer;
+    }
+`;
+
+const Reset = styled.button`
+    background-color: #E0E0E0;
+    border: none;
+    border-radius: 10px;
+    width: fit-content;
+    height: fit-content;
+    font-size: 0.5em;
     &:hover {
         cursor: pointer;
     }
@@ -38,6 +50,7 @@ class Stopwatch extends React.Component {
         this.toggleStopwatch = this.toggleStopwatch.bind(this);
         this.incrementTime = this.incrementTime.bind(this);
         this.startTime = this.startTime.bind(this);
+        this.reset = this.reset.bind(this);
     }
 
     toggleStopwatch() {
@@ -84,12 +97,20 @@ class Stopwatch extends React.Component {
         setTimeout(this.incrementTime, 1000);
     }
 
+    reset() {
+        this.setState({
+            on: false,
+            time: '00:00:00'
+        });
+    }
+
     render() {
         return (
             <Main>
                 <Time>
                     {this.state.time}
-                    <Button onClick={this.toggleStopwatch}>{this.state.on ? 'Stop' : 'Start'}</Button>
+                    <Button on={this.state.on} onClick={this.toggleStopwatch}>{this.state.on ? 'Stop' : 'Start'}</Button>
+                    <Reset onClick={this.reset}>Reset</Reset>
                 </Time>
             </Main>
         )
