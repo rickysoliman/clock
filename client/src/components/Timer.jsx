@@ -20,34 +20,41 @@ class Timer extends React.Component {
     }
 
     hourChange(e) {
-        var hour = e.target.value;
+        let hour = e.target.value;
         this.setState({ hour });
     }
 
     minuteChange(e) {
-        var minute = e.target.value;
+        let minute = e.target.value;
         this.setState({ minute });
     }
 
     secondChange(e) {
-        var second = e.target.value;
+        let second = e.target.value;
         this.setState({ second });
     }
 
     decrementTime() {
-        var hour = Number(this.state.hour);
-        var minute = Number(this.state.minute);
-        var second = Number(this.state.second);
+        let hour = Number(this.state.hour);
+        let minute = Number(this.state.minute);
+        let second = Number(this.state.second);
+
+        if (hour === 0 && minute === 0 && second === 0) {
+            this.setState({ on: false });
+            return null;
+        }
 
         second--;
-        if (second === 0) {
+
+        if (second < 0) {
             second = 59
             minute--;
-            if (minute === 0) {
+            if (minute < 0) {
                 minute = 59;
                 hour--;
             }
         }
+
         if (second < 10) {
             second = `0${second}`;
         }
@@ -58,12 +65,25 @@ class Timer extends React.Component {
             hour = `0${hour}`;
         }
 
-        this.setState({
-            hour,
-            minute,
-            second
+        this.setState({ hour, minute, second }, () => {
+            setTimeout(this.decrementTime, 1000);
         });
-        setTimeout(this.decrementTime, 1000);
+
+        // this.setState({
+        //     hour,
+        //     minute,
+        //     second
+        // }, () => {
+        //     if (second === 0) {
+        //         if (minute === 0 && hour === 0) {
+        //             this.setState({ on: false }, () => {
+        //                 return null
+        //             });
+        //         }
+        //     } else {
+        //         setTimeout(this.decrementTime, 1000);
+        //     }
+        // });
     }
 
     start() {
@@ -73,24 +93,24 @@ class Timer extends React.Component {
     }
 
     render() {
-        var hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        var hourOptions = hours.map(hour => {
+        let hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        let hourOptions = hours.map(hour => {
             return <option value={hour}>{hour}</option>
         });
-        var minutes = [];
-        var seconds = [];
+        let minutes = [];
+        let seconds = [];
         for (let i = 0; i <= 59; i++) {
-            var minute = i;
+            let minute = i;
             if (minute < 10) {
                 minute = `0${minute}`;
             }
             minutes.push(minute);
             seconds.push(minute);
         }
-        var minuteOptions = minutes.map(minute => {
+        let minuteOptions = minutes.map(minute => {
             return <option value={minute}>{minute}</option>
         });
-        var secondOptions = seconds.map(second => {
+        let secondOptions = seconds.map(second => {
             return <option value={second}>{second}</option>
         });
         return (
